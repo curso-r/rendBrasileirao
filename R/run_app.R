@@ -9,11 +9,14 @@
 #' @importFrom golem with_golem_options
 run_app <- function(
   onStart = NULL,
-  options = list(launch.browse = FALSE, port = 4242),
+  options = list(launch.browser = FALSE, port = 4242),
   enableBookmarking = NULL,
   uiPattern = "/",
   ...
 ) {
+
+  dados <- pegar_dados()
+
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
@@ -23,6 +26,6 @@ run_app <- function(
       enableBookmarking = enableBookmarking,
       uiPattern = uiPattern
     ),
-    golem_opts = list(...)
+    golem_opts = list(dados = dados)
   )
 }
