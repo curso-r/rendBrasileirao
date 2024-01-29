@@ -63,13 +63,13 @@ tab <- dados |>
       "home",
       "away"
     )
-  ) |> 
-  dplyr::filter(mando == mando_pontuacao) |> 
-  dplyr::arrange(season, time, date) |> 
-  dplyr::group_by(season, time) |> 
+  ) |>
+  dplyr::filter(mando == mando_pontuacao) |>
+  dplyr::arrange(season, time, date) |>
+  dplyr::group_by(season, time) |>
   dplyr::mutate(
     rodada = dplyr::row_number()
-  ) |> 
+  ) |>
   dplyr::select(
     season,
     rodada,
@@ -78,3 +78,119 @@ tab <- dados |>
     mando,
     pontos
   )
+
+
+################
+
+# pontuacao_ponderada = pontos * alfa * beta
+
+# alfa = f(colocacao_adv)
+# 1º: alfa = 2
+# 2º: alfa = 1.9
+# ...
+# 20º: alfa = 0.1
+
+
+# beta = f(aprov_adv)
+# beta = 1 + aprov
+
+url <- "https://raw.githubusercontent.com/williamorim/brasileirao/master/data-raw/csv/matches.csv"
+
+readr::read_csv(url) |>
+  dplyr::mutate(
+    num_pontos_mandante = purrr::map_dbl(
+      score,
+      ~ calcular_num_pontos(placar = .x, perspectiva = "mandante")
+    ),
+    num_pontos_visitante = purrr::map_dbl(
+      score,
+      ~ calcular_num_pontos(placar = .x, perspectiva = "visitante")
+    )
+  ) |>
+  tidyr::separate_wider_delim(
+    cols = score,
+    delim = "x",
+    names = c("gols_mandante", "gols_visitante")
+  ) |>
+  dplyr::select(
+    season,
+    date,
+    home,
+    num_pontos_mandante,
+    gols_mandante,
+    away,
+    num_pontos_visitante,
+    gols_visitante
+  ) |>
+  tidyr::pivot_longer(
+    cols = c(num_pontos_mandante, num_pontos_visitante),
+    names_to = "mando",
+    values_to = "pontos"
+  ) |>
+  dplyr::mutate(
+    mando = stringr::str_remove(mando, "num_pontos_"),
+    time = ifelse(
+      mando == "mandante",
+      home,
+      away
+    ),
+    adversario = ifelse(
+      mando == "mandante",
+      away,
+      home
+    ),
+    gols_marcados = ifelse(
+      mando == "mandante",
+      gols_mandante,
+      gols_visitante
+    ),
+    gols_sofridos = ifelse(
+      mando == "mandante",
+      gols_visitante,
+      gols_mandante
+    )
+  ) |>
+  dplyr::select(
+    season,
+    date,
+    time,
+    adversario,
+    mando,
+    pontos,
+    gols_marcados,
+    gols_sofridos
+  ) |>
+  dplyr::arrange(season, time, date) |>
+  dplyr::group_by(season, time) |>
+  dplyr::mutate(
+    rodada = dplyr::row_number(),
+    .after = season
+  )
+
+
+
+
+devtools::load_all()
+
+tab <- pegar_dados()
+
+tab_2023 <- tab |>
+  dplyr::filter(season == 2023)
+
+.rodada <- 38
+.time <- "São Paulo"
+.mando <- "mandante"
+
+# alfa(1): 2
+# alfa(2): 1.9
+# alfa(20): 0.1
+
+f(1) <- 0
+f(2) <- 0.1
+f(3) <- 0.2
+
+2 - (20 - 1) / 10
+
+
+
+calcular_beta(tab_2023, "São Paulo", 30, "mandante")
