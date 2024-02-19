@@ -185,12 +185,38 @@ tab_2023 <- tab |>
 # alfa(2): 1.9
 # alfa(20): 0.1
 
-f(1) <- 0
-f(2) <- 0.1
-f(3) <- 0.2
-
-2 - (20 - 1) / 10
-
-
-
+calcular_alfa(tab_2023, "São Paulo", 30)
 calcular_beta(tab_2023, "São Paulo", 30, "mandante")
+
+dados <- pegar_dados()
+
+tab_temporada <- dados |>
+  dplyr::filter(
+    season == 2023
+  )
+
+tab_temporada |> 
+  dplyr::filter(
+    time == "São Paulo"
+  ) |> 
+  dplyr::mutate(
+    pontos_ponderados = purrr::pmap_dbl(
+      list(
+        pontos = pontos,
+        rodada = rodada,
+        time = adversario,
+        mando = mando
+      ),
+      ~ ..1 * calcular_alfa(tab_temporada, ..3, ..2) * 
+      calcular_beta(tab_temporada, ..3, ..2, ..4)
+      )
+    ) |> 
+    dplyr::select(
+      rodada,
+      time,
+      adversario,
+      mando,
+      pontos,
+      pontos_ponderados
+    ) |> 
+    View()

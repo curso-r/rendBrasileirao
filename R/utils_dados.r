@@ -156,9 +156,6 @@ calcular_alfa <- function(tab, .adversario, .rodada) {
   2 - (colocacao - 1) / 10
 }
 
-calcular_alfa(tab_2023, "Botafogo", 30)
-
-
 calcular_beta <- function(tab, .adversario, .rodada, .mando) {
   if (.rodada == 1) {
     return(1)
