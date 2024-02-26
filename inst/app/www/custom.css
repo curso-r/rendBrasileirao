@@ -1,0 +1,38 @@
+:root {
+  --primary-color: #05a37f;
+}
+
+
+.container-fluid {
+  padding: 32px 5% 0 5%;
+}
+
+.app-title img {
+  width: 150px;
+}
+
+.app-title h2 {
+  display: inline;
+}
+
+hr {
+  margin: 0 0 32px 0;
+}
+
+.caixinha-informacao .bi {
+  height: 50px !important;
+  width: 50px !important;
+}
+
+.caixinha-informacao .value-box-value {
+  font-size: 13pt;
+}
+
+.caixinha-informacao .bg-info {
+  background-color: var(--primary-color) !important;
+  color: black;
+}
+
+.caixinha-informacao .value-box-title {
+  font-weight: bold;
+}

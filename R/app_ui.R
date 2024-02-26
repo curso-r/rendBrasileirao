@@ -11,7 +11,11 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     bslib::page_fluid(
-      titlePanel("Rendimentos dos times do Brasileirão"),
+      div(
+        class = "app-title",
+        img(src = "www/logo_transparente.png"),
+        h2("Rendimentos dos times do Brasileirão")
+      ),
       hr(),
       bslib::layout_columns(
         class = "align-items-end",
@@ -24,9 +28,8 @@ app_ui <- function(request) {
         shinyWidgets::pickerInput(
           inputId = "times",
           label = "Times",
-          choices = sort(unique(dados$time)),
-          multiple = TRUE,
-          selected = "São Paulo"
+          choices = c("Carregando..." = ""),
+          multiple = TRUE
         ),
         shinyWidgets::pickerInput(
           inputId = "metrica",
@@ -51,18 +54,28 @@ app_ui <- function(request) {
       ),
       conditionalPanel(
         condition = "input.pontuacao_ponderada",
-        bslib::value_box(
-          title = "Sobre a ponderação",
-          value = "A ponderação é calculada a partir da posição do adversário na tabela e do aproveitamento do adversário dentro ou fora de casa, a depender de onde é o jogo.",
-          showcase = bsicons::bs_icon("info-circle"),
-          theme = "bg-info",
-          class = "smaller"
+        div(
+          class = "caixinha-informacao",
+          bslib::value_box(
+            title = "Sobre a ponderação",
+            value = includeMarkdown(
+              app_sys("app/md/explicacao_ponderacao.md")
+            ),
+            showcase = bsicons::bs_icon("info-circle"),
+            showcase_layout = bslib::showcase_left_center(
+              width = 0.1
+            ),
+            theme = "bg-info",
+            class = "smaller"
+          )
         )
       ),
       plotly::plotlyOutput("grafico")
     )
   )
 }
+
+
 
 
 #' Add external Resources to the Application
@@ -80,7 +93,10 @@ golem_add_external_resources <- function() {
   )
 
   tags$head(
-    favicon(),
+    favicon(
+      ico = "logo_transparente",
+      ext = "png"
+    ),
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "rendBrasileirao"
